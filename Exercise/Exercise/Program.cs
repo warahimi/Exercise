@@ -108,13 +108,310 @@ namespace Exercise // Note: actual namespace depends on the project name.
             //Console.WriteLine(fib_bottomUp(n));
             //Console.WriteLine(fib4(n));
 
-            int n = 66;
-            Console.WriteLine(nSum(n));
-            Console.WriteLine(nSum2(n));
-            Console.WriteLine(nSum3(n));
-            int[] arr = new int[n + 1];
-            Console.WriteLine(nSum4(n, arr));
+            //int n = 66;
+            //Console.WriteLine(nSum(n));
+            //Console.WriteLine(nSum2(n));
+            //Console.WriteLine(nSum3(n));
+            //int[] arr = new int[n + 1];
+            //Console.WriteLine(nSum4(n, arr));
+            //int n = 10;
+            //Console.WriteLine(NumberOfWaysToGetToTopOfStairs(n));
+            //int n = 20;
+            //foreach(var x in nFib(n))
+            //    Console.Write(x + " ");
+            //Console.WriteLine();    
+            //nFib2(n);
+            //Console.WriteLine();
+            //for(int i = 1; i<= n; i++)
+            //{
+            //    Console.Write(nFibRec(i) + " ");
+            //}
+            //Console.WriteLine();
+            //int[] memo = new int[n + 1];
+            //Console.WriteLine(nFibRec2(n, memo));
+            //Console.WriteLine(nthFib(n));
+            //Console.WriteLine(nthFib2Rec(n));
+            //Console.WriteLine(nSumm(5));
+            //Console.WriteLine(nSummRec(5));
+            int n = 10;
+            //Console.WriteLine(climbingStairs3Steps(n));
+            //Console.WriteLine(climbingStairs3Steps2(n));
+            //Console.WriteLine(findStep(n));
+            Console.WriteLine(ClimbingStairsKSteps(n, 4));
+            Console.WriteLine(climbStairs4Steps(n));
+            Console.WriteLine(climbStairs4Steps2(n));
+            Console.WriteLine(climbStairs4Steps3(n));
+            //Console.WriteLine(cl(n, 4));
+        }
 
+        public static int climbStairs4Steps3(int n)
+        {
+            if (n == 0)
+                return 1;
+            else if (n < 0)
+                return 0;
+            else
+                return climbStairs4Steps(n - 4) +
+                    climbStairs4Steps(n - 3) +
+                    climbStairs4Steps(n - 2) +
+                    climbStairs4Steps(n - 1);
+        }
+
+        public static int climbStairs4Steps2(int n)
+        {
+            if (n == 0) return 1;
+            if (n == 1) return 1;
+            if (n == 2) return 2;
+            if (n == 3) return 4;
+
+            int a = 1;
+            int b = 1;
+            int c = 2;
+            int d = 4;
+            int r = 0;
+
+            for(int i = 4; i <= n; i++) 
+            { 
+                r = a + b + c + d;
+                a = b;
+                b = c; 
+                c = d; 
+                d = r;
+            }
+            return r;
+        }
+
+        public static int climbStairs4Steps(int n)
+        {
+            if (n == 0) return 1;
+            if (n == 1) return 1;
+            if (n == 2) return 2;
+            if (n == 3) return 4;
+
+            int[] dp = new int[n+1];
+
+            dp[0] = 1;
+            dp[1] = 1;
+            dp[2] = 2;
+            dp[3] = 4;
+            for(int i = 4; i <= n; i++)
+            {
+                dp[i] = dp[i-1] + dp[i-2] + dp[i-3] + dp[i-4];
+            }
+            return dp[n];
+        }
+        public static int cl(int n, int k)
+        {
+            if(n == 0) return 1;
+            int[] dp = new int[n + 1];
+            dp[0] = 1;
+
+            for(int i = 1; i <= n; i++) 
+            {
+                for(int j = 1; j<=k && j<=i;j++)
+                {
+                    dp[i] += dp[i-j];
+                }
+            }
+
+            return dp[n];
+        }
+
+        /// <summary>
+        /// Calculates the number of ways to climb a staircase of n steps, taking 1 to k steps at a time.
+        /// </summary>
+        /// <param name="n">Total number of steps in the staircase.</param>
+        /// <param name="k">Maximum number of steps that can be taken at once.</param>
+        /// <returns>The number of unique ways to climb the staircase.</returns>
+        public static int ClimbingStairsKSteps(int n, int k)
+        {
+            // Base case: If there are no steps, there's only one way to be at the base (not climb at all).
+            if (n == 0) return 1;
+
+            // Array to store the number of ways to climb to each step.
+            int[] dp = new int[n + 1];
+
+            // Initialize the first step as there's only one way to be at the ground.
+            dp[0] = 1;
+
+            // Iterate over each step in the staircase.
+            for (int i = 1; i <= n; i++)
+            {
+                // For each step, we consider the last k steps to calculate the number of ways 
+                // to reach the current step. The inner loop sums up the ways to reach the previous 
+                // k steps, from which you can jump to the current step.
+                // dp[i] = dp[i-1] + dp[i-2] + dp[i-3]+ ..... + dp[i-k]
+                // j <= j , we dont want j get begger than i, because dp[i-j] will give negative index
+                for (int j = 1; j <= k && j <= i; j++)
+                {
+                    dp[i] += dp[i - j];
+                }
+            }
+
+            // Return the total number of ways to reach the nth step.
+            return dp[n];
+        }
+
+
+        // Returns count of ways to reach
+        // n-th stair using 1 or 2 or 3 steps.
+        public static int findStep(int n) // O(3^n)
+        {
+            if (n == 0)
+                return 1;
+            else if (n < 0)
+                return 0;
+
+            else
+                return findStep(n - 3) + findStep(n - 2)
+                    + findStep(n - 1);
+        }
+        public static int climbingStairs3Steps2(int n)
+        {
+            if (n == 0) return 0;
+            if (n == 1) return 1;
+            if (n == 2) return 2;
+
+            int a = 1;  // ways to climb 1 step
+            int b = 1;  // ways to climb 1 step
+            int c = 2;  // ways to climb 1 or 2 steps
+
+            for (int i = 3; i <= n; i++)
+            {
+                int r = a + b + c;
+                a = b;
+                b = c;
+                c = r;
+            }
+            return c;
+        }
+        public static int climbingStairs3Steps(int n)
+        {
+            int[] arr = new int[n+1];
+            arr[0] = 1;
+            arr[1] = 1;
+            arr[2] = 2;
+            for(int i = 3; i<= n; i++)
+            {
+                arr[i] = arr[i-1] + arr[i-2] + arr[i-3];
+            }
+            return arr[n];
+
+        }
+        public static int nSummRec(int n)
+        {
+            if (n == 0)
+                return 0;
+            return n + nSummRec(n- 1);
+        }
+        public static int nSumm(int n)
+        {
+            int sum = 0;
+            int a = 1;
+            for(int i = 0; i <= n; i++)
+            {
+                sum += i;
+            }
+            return sum;
+        }
+        public static int[] nFib(int n)
+        {
+            
+            if(n == 1)
+                return new int[1] { 1 };
+            if(n == 2)
+                return new int[2] { 1,1 };
+            int[] fib = new int[n];
+            fib[0] = 1;
+            fib[1] = 1;
+
+            for(int i = 2; i < fib.Length;i++)
+            {
+                fib[i] = fib[i - 1] + fib[i-2];
+            }
+
+            return fib;
+        }
+        public static void nFib2(int n)
+        {
+            int a = 1;
+            int b = 1;
+            if(n == 1)
+            {
+                Console.Write(a);
+            }
+            else if(n == 2)
+            {
+                Console.Write(a + " " + b);
+            }
+            else
+            {
+                Console.Write(a + " " + b +" ");
+                for(int i = 2; i < n;i++)
+                {
+                    int c = a + b;
+                    Console.Write(c + " ");
+                    a = b;
+                    b = c;
+                }
+            }
+        }
+        public static int nFibRec2(int n, int[] memo)
+        {
+            int res;
+            if (memo[n] != 0)
+            {
+                return memo[n];
+            }
+            if(n == 1 || n ==2)
+            {
+                res = 1;
+            }
+            else
+            {
+                res = nFibRec2(n-1,memo) + nFibRec2(n-2, memo);
+            }
+            memo[n] = res;
+            return res;
+        }
+        public static int nthFib2Rec(int n)
+        {
+            if(n <= 2)
+                return 1;
+            return nthFib2Rec(n - 1) + nthFib2Rec(n - 2);
+        }
+        public static int nthFib(int n)
+        {
+            if (n == 1 || n == 2)
+                return 1;
+            int a = 1; 
+            int b = 1;
+            int c = 0;
+            for(int i = 2; i< n; i++)
+            {
+                c = a + b;
+                a = b; b = c;
+            }
+            return c;
+        }
+        public static int nFibRec(int n)
+        {
+            if(n <= 1) return n;
+            return nFibRec(n - 1) + nFibRec(n-2);
+        }
+        public static int NumberOfWaysToGetToTopOfStairs(int n)
+        {
+            if (n == 0)
+                n++;
+            int[] arr = new int[n + 1];
+            // base cases
+            arr[0] = 1;
+            arr[1] = 1;
+            for(int i = 2; i <= n;i++)
+            {
+                arr[i] = arr[i-1] + arr[i-2];
+            }
+            return arr[n];   
         }
 
         //using Recursion and DP
