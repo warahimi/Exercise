@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Intrinsics.Arm;
+using System.Threading.Tasks.Sources;
 
 namespace Exercise // Note: actual namespace depends on the project name.
 {
@@ -133,17 +135,310 @@ namespace Exercise // Note: actual namespace depends on the project name.
             //Console.WriteLine(nthFib2Rec(n));
             //Console.WriteLine(nSumm(5));
             //Console.WriteLine(nSummRec(5));
-            int n = 10;
+            //int n = 10;
             //Console.WriteLine(climbingStairs3Steps(n));
             //Console.WriteLine(climbingStairs3Steps2(n));
             //Console.WriteLine(findStep(n));
-            Console.WriteLine(ClimbingStairsKSteps(n, 4));
-            Console.WriteLine(climbStairs4Steps(n));
-            Console.WriteLine(climbStairs4Steps2(n));
-            Console.WriteLine(climbStairs4Steps3(n));
+            //Console.WriteLine(ClimbingStairsKSteps(n, 4));
+            //Console.WriteLine(climbStairs4Steps(n));
+            //Console.WriteLine(climbStairs4Steps2(n));
+            //Console.WriteLine(climbStairs4Steps3(n));
             //Console.WriteLine(cl(n, 4));
+
+            int n = 7;
+            //Console.WriteLine(climbingStairsOneStepOrThreeStep(n));
+            //Console.WriteLine(climbingStairsOneStepOrThreeStep2(n));
+            //Console.WriteLine(ClimbStairsWith1Or3Steps(n));
+            //Console.WriteLine(ClimbStairsWith1Or3Steps2(n));
+
+            //Console.WriteLine(ClimbStairsWith1Or3Or6Steps(n));
+            //Console.WriteLine(ClimbStairsWith1Or3Or6Steps2(n));
+
+            //Console.WriteLine(ClimbStairsWith2Or4Steps(n));
+            //Console.WriteLine(ClimbStairsWith2Or4Steps2(n));
+            //Console.WriteLine(ClimbStairsWith2Or4Steps3(n));
+            bool[] redStairs = { false, true, false, true, true, false, false, false };
+
+            Console.WriteLine(CountWaysWithRedSteps(n,3,redStairs));
+
         }
 
+
+        public static int CountWaysWithRedSteps(int n, int k, bool[] redStairs)
+        {
+            if (n == 0) return 1; // One way to stay at the start
+
+            int[] dp = new int[n + 1];
+            dp[0] = 1;
+
+            for (int i = 1; i <= n; i++)
+            {
+                // If the current stair is red, skip it (0 ways to reach it)
+                if (redStairs[i])
+                {
+                    dp[i] = 0;
+                    continue;
+                }
+
+                // Sum the ways from the last k steps
+                for (int j = 1; j <= k && j <= i; j++)
+                {
+                    dp[i] += dp[i - j];
+                }
+            }
+
+            return dp[n];
+        }
+
+        public static int ClimbStairsWith2Or4Steps3(int n)
+        {
+            // Base cases
+            if (n == 0) return 1;    // Zero steps, only one way by not climbing at all
+            if (n == 1 || n == 3) return 0; // Can't reach with only 2-step or 4-step moves
+            if (n == 2) return 1;    // One way using a 2-step
+            if (n == 4) return 2;    // Two ways: 2-step + 2-step or a single 4-step
+
+            int s0 = 1;
+            int s1 = 0;
+            int s2 = 1;
+            int s3 = 0;
+            int result = 0;
+            for(int i = 4; i<=n; i++)
+            {
+                result = s0 + s2;
+                s0 = s1;
+                s1 = s2;
+                s2 = s3;
+                s3 = result;
+            }
+            return result;
+            
+        }
+
+
+        /*
+            If n=0: There's 1 way (not climb at all).
+            If n=1 or n=3: You can't reach the top using only 2-step or 4-step moves.
+            If n=2: There's 1 way, which is to take a 2-step.
+            If n=4: There are 2 ways:
+            Take two 2-steps.
+            Take one 4-step.
+            From n=5 onwards, to reach step i, you have two options:
+
+            You could have come from i−2 using a 2-step.
+            You could have come from i−4 using a 4-step.
+            The dp array is used to store the number of ways to climb to each step. We fill up this array using
+            the two options described above. Once the array is filled, the value at dp[n] will represent the number 
+            of distinct ways to reach the top of the n stairs using 2 or 4 steps at a time.
+         */
+        public static int ClimbStairsWith2Or4Steps2(int n)
+        {
+            // Base cases
+            if (n == 0) return 1;    // Zero steps, only one way by not climbing at all
+            if (n == 1 || n == 3) return 0; // Can't reach with only 2-step or 4-step moves
+            if (n == 2) return 1;    // One way using a 2-step
+            if (n == 4) return 2;    // Two ways: 2-step + 2-step or a single 4-step
+
+            // Array to store the number of ways to climb to each step
+            int[] dp = new int[n + 1];
+
+            // Initialize base values
+            dp[0] = 1;
+            dp[2] = 1;
+            dp[4] = 2;
+
+            // Compute the number of ways for each subsequent step
+            for (int i = 5; i <= n; i++)
+            {
+                // The number of ways to get to step i is the sum of:
+                // 1) The number of ways to get to step i-2 (and then take a 2-step)
+                // 2) The number of ways to get to step i-4 (and then take a 4-step)
+                dp[i] = dp[i - 2] + dp[i - 4];
+            }
+
+            return dp[n];
+        }
+
+        public static int ClimbStairsWith2Or4Steps(int n)
+        {
+            if (n == 1 || n == 2) return 1;
+            if (n == 1 || n == 3) return 0;
+
+            int[] dp = new int[n + 1];
+            dp[0] = 1;
+            dp[1] = 0;
+            dp[2] = 1;
+            dp[3] = 4;
+            for(int i = 4; i<= n; i++)
+            {
+                dp[i] = dp[i - 2] + dp[i - 4];
+            }
+            return dp[n];
+        }
+
+        /*
+         * the problem is an extension of the previous problem. If we can climb using steps of size 1, 3, or 6, 
+         * then to calculate the ways to reach step n, we'll consider the ways to reach steps 
+            n - 1, n - 3 and n-6
+         */
+        public static int ClimbStairsWith1Or3Or6Steps(int n)
+        {
+            if (n == 0) return 1;
+            if (n == 1 || n == 2) return 1; // Only 1 way using 1-step(s)
+            if (n == 3 || n == 4 || n == 5) return 2; // 1+1+1 or 3 for n=3 and so on
+
+            // Values for the initial 6 steps
+            int[] dp = new int[6] { 1, 1, 1, 2, 2, 2 };
+
+            for (int i = 6; i <= n; i++)
+            {
+                // Sum of ways from the previous 1, 3, and 6 steps
+                int totalWays = dp[5] + dp[2] + dp[0];
+
+                // Shift values to the left by 1 position
+                for (int j = 0; j < 5; j++)
+                {
+                    dp[j] = dp[j + 1];
+                }
+
+                // Set the total ways for the current step
+                dp[5] = totalWays;
+            }
+
+            return dp[5];
+        }
+        public static int ClimbStairsWith1Or3Or6Steps2(int n)
+        {
+            if (n == 0 || n == 1 || n == 2) return 1;
+            if (n == 3 || n == 4 || n == 5) return 2;
+            int[] dp = new int[6];
+            dp[0] = 1;
+            dp[1] = 1;
+            dp[2] = 1;
+            dp[3] = 2;
+            dp[4] = 2;
+            dp[5] = 2;
+            int result = 0;
+            for(int i = 6; i<= n; i++)
+            {
+                result = dp[0] + dp[2] + dp[5]; // we can get to 6th stairs using either 0 or 3 or 5th stair.
+
+                // Shifting the values for next step
+                for(int j =0; j<5; j++)
+                {
+                    dp[j] = dp[j + 1];
+                }
+                dp[5] = result;
+            }
+            return result;
+        }
+        /*
+         * Space Optimization
+         * Given that we only need to remember the last three computed values to determine the number of ways for any n
+         * stairs we can significantly reduce the space complexity from O(n) to O(1) by using only three variables.
+         */
+        public static int ClimbStairsWith1Or3Steps2(int n)
+        {
+            if (n == 0 || n == 1 || n == 2) return 1;
+            if (n == 3) return 2;
+
+            // Instead of using an array to store all the values, 
+            // we'll use three variables to store the last three computed values.
+            int threeStepsBack = 1;  // Represents dp[i-3]
+            int twoStepsBack = 1;    // Represents dp[i-2]
+            int oneStepBack = 2;     // Represents dp[i-1]
+
+            int current = 0;  // Represents dp[i]
+
+            for (int i = 4; i <= n; i++)
+            {
+                // Compute the value for the current step
+                current = oneStepBack + threeStepsBack;
+
+                // Shift the values for the next iteration
+                threeStepsBack = twoStepsBack;
+                twoStepsBack = oneStepBack;
+                oneStepBack = current;
+            }
+
+            return current;
+        }
+        public static int climbingStairsOneStepOrThreeStep2(int n)
+        {
+            if (n == 0 || n == 1 || n == 2) return 1;
+            //int[] dp = new int[n + 1];
+            int s0 = 1;
+            int s1 = 1;
+            int s2 = 1;
+            int r = 0;
+
+            for (int i = 3; i <= n; i++)
+            {
+                r = s0 + s2;
+                s0 = s1;
+                s1 = s2;
+                s2 = r;
+            }
+            return r;
+        }
+
+        /*
+         * For n=0: There is only 1 way, which is not to climb at all.
+        For n=1: There is only 1 way, which is to take a 1-step.
+        For n=2: You can't reach the top using only 1-step or 3-step moves.
+        From n=3 onwards, to reach a particular step i, you have two options:
+        You could have come from i-1 using a 1-step.
+        You could have come from i-3 using a 3-step.
+        The dp array is used to store the number of ways to climb to each step. We fill up this array using the two 
+        options described. Once the array is filled, the value at dp[n] will represent the number of distinct ways to 
+        reach the top of the n stairs using 1 or 3 steps at a time.
+         */
+        public static int ClimbStairsWith1Or3Steps(int n)
+        {
+            // If there are 0 steps, there's only one way to be at the base (not climb at all).
+            if (n == 0) return 1;
+
+            // If there's only 1 step, you can climb it in just one way (using a 1-step).
+            if (n == 1) return 1;
+
+            // If n = 2, you can reach the top in 1 distinct way: 1-step + 1-step.
+            if (n == 2) return 1;
+
+            // Array to store the number of ways to climb to each step.
+            int[] dp = new int[n + 1];
+
+            // Base cases:
+            dp[0] = 1; // Zero steps
+            dp[1] = 1; // One step
+            dp[2] = 1; // Two steps If n = 2, you can reach the top in 1 distinct way: 1-step + 1-step.
+
+            // Calculate ways for each step from 3 to n
+            for (int i = 3; i <= n; i++)
+            {
+                // The number of ways to get to step i is the sum of:
+                // 1) The number of ways to get to step i-1 (and then take a 1-step)
+                // 2) The number of ways to get to step i-3 (and then take a 3-step)
+                dp[i] = dp[i - 1] + dp[i - 3];
+            }
+
+            // Return the total number of ways to reach the nth step.
+            return dp[n];
+        }
+
+        public static int climbingStairsOneStepOrThreeStep(int n)
+        {
+            if (n == 0 || n == 1 || n==2) return 1;
+            int[] dp = new int[n + 1];
+            dp[0] = 1;
+            dp[1] = 1;
+            dp[2] = 1;
+
+            for(int i = 3; i<= n; i++)
+            {
+                dp[i] = dp[i - 1] + dp[i - 3];
+            }
+            return dp[n];
+        }
         public static int climbStairs4Steps3(int n)
         {
             if (n == 0)
@@ -215,6 +510,57 @@ namespace Exercise // Note: actual namespace depends on the project name.
             }
 
             return dp[n];
+        }
+        // COnstant space
+
+        /*
+                     * The expression Math.Min(i, k - 1) is used to determine the index in the dp array where the computed value for the current step should be stored. Let's break it down:
+
+            dp is an array of size k. So the valid indices for this array range from 0 to k-1.
+
+            As we iterate over steps with the outer loop (for (int i = 1; i <= n; i++)), i represents the current step number we are calculating the number of ways for.
+
+            For steps 1 to k-1, the step number i is also a valid index for the dp array. For example, when i=2 (i.e., we're calculating ways for the 2nd step), the index 2 is valid in the dp array if k > 2.
+
+            However, once i reaches k (and beyond), it surpasses the maximum valid index of the dp array. Hence, at that point (and for all subsequent steps), we need to store the computed value at the last index of the dp array, which is k-1.
+
+            The expression Math.Min(i, k - 1) achieves this logic by:
+
+            Returning i when i < k.
+            Returning k-1 when i >= k.
+            In essence, for the first k steps, we're storing the number of ways directly at the index corresponding to the step number. But for all steps beyond k, we cyclically utilize the dp array and always store the newly computed value at the last index, which is k-1.
+
+         */
+        public static int ClimbingStairsKSteps2(int n, int k)
+        {
+            if (n == 0) return 1;
+
+            // Array to store the last k computed values.
+            int[] dp = new int[k];
+            dp[0] = 1; // Base case
+
+            for (int i = 1; i <= n; i++)
+            {
+                int sum = 0;
+
+                // Sum up the last k computed values to get the value for the current step.
+                for (int j = 0; j < k && j < i; j++)
+                {
+                    sum += dp[j];
+                }
+
+                // Shift the values cyclically in the dp array.
+                for (int j = 0; j < k - 1; j++)
+                {
+                    dp[j] = dp[j + 1];
+                }
+
+                // Store the newly computed value at the end of the dp array.
+                dp[Math.Min(i, k - 1)] = sum;
+            }
+
+            // Return the last computed value.
+            return dp[Math.Min(n, k - 1)];
         }
 
         /// <summary>
